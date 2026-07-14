@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>字詞快閃樂園 · 幼兒識字練習</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#EAF6FF;
+    --cream:#FFF8EA;
+    --cloud:#FFFFFF;
+    --sun:#FFC93C;
+    --sun-deep:#FFA000;
+    --coral:#FF8A80;
+    --coral-deep:#F4645A;
+    --mint:#57DDB0;
+    --mint-deep:#2FBE93;
+    --skyblue:#5AB7FF;
+    --grape:#B18CFF;
+    --ink:#3E3A5C;
+    --ink-soft:#7A7699;
+    --ink-faint:#C3C0DA;
+    --radius-lg:28px;
+    --radius-md:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: linear-gradient(180deg, var(--sky) 0%, var(--cream) 100%) fixed;
+    color:var(--ink);
+    font-family:'Baloo 2','Noto Sans TC', -apple-system, 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+    min-height:100vh;
+    padding:26px 16px 50px;
+  }
+  .zh{font-family:'Noto Sans TC', -apple-system, 'PingFang TC', 'Microsoft JhengHei', sans-serif;}
+  .wrap{max-width:720px;margin:0 auto;}
+
+  /* ===== Header ===== */
+  header{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+  .header-emoji{font-size:44px;line-height:1;flex-shrink:0;filter:drop-shadow(0 4px 6px rgba(0,0,0,.08));}
+  h1{font-size:clamp(22px,5vw,30px);margin:0 0 4px;font-weight:700;color:var(--ink);}
+  header p{margin:0;color:var(--ink-soft);font-size:13.5px;line-height:1.5;}
+
+  /* ===== Settings (collapsible) ===== */
+  details.settings-panel{
+    background:var(--cloud);border-radius:var(--radius-lg);
+    padding:6px 18px 18px;margin-bottom:16px;
+    box-shadow:0 6px 18px rgba(120,120,180,.10);
+  }
+  details.settings-panel summary{
+    cursor:pointer;padding:14px 0;font-weight:700;font-size:15px;color:var(--ink);
+    list-style:none;display:flex;align-items:center;gap:8px;
+  }
+  details.settings-panel summary::-webkit-details-marker{display:none;}
+  details.settings-panel summary::before{content:"▸";color:var(--sun-deep);transition:.2s;}
+  details.settings-panel[open] summary::before{transform:rotate(90deg);}
+
+  .set-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;}
+  .set-label{font-size:12.5px;color:var(--ink-soft);font-weight:600;min-width:64px;}
+  select.kid-select{
+    background:var(--cream);border:2px solid #FFE7B0;border-radius:999px;padding:8px 16px;
+    font-family:'Baloo 2',sans-serif;font-size:13.5px;color:var(--ink);font-weight:600;
+  }
+  .pillgroup{display:flex;background:var(--cream);border-radius:999px;padding:3px;gap:2px;}
+  .pill{
+    appearance:none;border:none;background:transparent;color:var(--ink-soft);
+    font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:700;
+    padding:7px 15px;border-radius:999px;cursor:pointer;transition:.15s;
+  }
+  .pill.active{background:var(--sun);color:#5A3D00;box-shadow:0 3px 8px rgba(255,167,0,.35);}
+  .pill:focus-visible, button:focus-visible, select:focus-visible{outline:3px solid var(--skyblue); outline-offset:2px;}
+
+  .switch-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-soft);font-weight:600;}
+  .switch{position:relative;width:42px;height:24px;border-radius:999px;background:var(--cream);border:2px solid #FFE7B0;cursor:pointer;flex-shrink:0;transition:.15s;}
+  .switch::after{content:"";position:absolute;top:1px;left:1px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:.18s;}
+  .switch.on{background:var(--mint);border-color:var(--mint-deep);}
+  .switch.on::after{transform:translateX(18px);}
+
+  input[type=range]{accent-color:var(--sun-deep);width:130px;}
+  .pool-hint{font-size:11.5px;color:var(--ink-faint);margin-top:10px;}
+
+  /* ===== Custom word bank ===== */
+  .custom-bank{margin-top:16px;padding-top:14px;border-top:2px dashed #FFE7B0;}
+  .custom-bank .set-label{min-width:auto;font-size:13px;color:var(--ink);margin-bottom:8px;}
+  .custom-add-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .custom-add-row input{
+    background:var(--cream);border:2px solid #FFE7B0;border-radius:14px;padding:9px 12px;
+    font-family:'Baloo 2','Noto Sans TC',sans-serif;font-size:14px;color:var(--ink);font-weight:600;
+  }
+  #customCharInput{flex:1 1 130px;min-width:110px;}
+  #customEmojiInput{width:74px;text-align:center;font-size:18px;}
+  .custom-add-row select.kid-select{padding:9px 12px;}
+  .custom-add-btn{
+    font-family:'Baloo 2',sans-serif;font-weight:800;font-size:14px;color:#5A3D00;
+    background:linear-gradient(180deg,#FFD873,var(--sun));border:none;border-radius:14px;
+    padding:10px 18px;cursor:pointer;box-shadow:0 4px 0 var(--sun-deep);
+  }
+  .custom-add-btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--sun-deep);}
+  .custom-hint{font-size:11.5px;color:var(--ink-faint);margin-top:8px;line-height:1.5;}
+  .custom-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .custom-chip{
+    display:flex;align-items:center;gap:8px;background:var(--cream);border-radius:999px;
+    padding:6px 8px 6px 14px;font-size:13.5px;font-weight:700;color:var(--ink);
+  }
+  .custom-chip .chip-emoji{font-size:18px;}
+  .custom-chip .chip-del{
+    width:24px;height:24px;border:none;border-radius:50%;background:var(--coral);color:#fff;
+    font-size:15px;line-height:1;cursor:pointer;flex-shrink:0;font-weight:800;
+  }
+  .custom-empty{font-size:12px;color:var(--ink-faint);margin-top:10px;}
+
+  /* ===== Play card ===== */
+  .play-card{
+    background:var(--cloud);border-radius:var(--radius-lg);
+    padding:26px 20px 22px;text-align:center;
+    box-shadow:0 10px 26px rgba(120,120,180,.14);
+    position:relative;overflow:hidden;
+  }
+  .mascot-row{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:18px;flex-wrap:wrap;}
+  .mascot{font-size:40px;line-height:1;}
+  .speech-bubble{
+    background:var(--cream);border-radius:999px;padding:9px 18px;
+    font-size:13.5px;font-weight:700;color:var(--ink);max-width:320px;
+  }
+
+  .stage{min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
+
+  .start-btn{
+    font-family:'Baloo 2',sans-serif;font-weight:800;font-size:22px;color:#5A3D00;
+    background:linear-gradient(180deg,#FFD873,var(--sun));
+    border:none;border-radius:999px;padding:18px 48px;cursor:pointer;
+    box-shadow:0 8px 0 var(--sun-deep), 0 12px 20px rgba(255,167,0,.35);
+    transition:transform .1s;
+  }
+  .start-btn:active{transform:translateY(4px);box-shadow:0 4px 0 var(--sun-deep), 0 8px 14px rgba(255,167,0,.3);}
+
+  .flash-emoji-hint{font-size:2.4rem;opacity:.85;}
+  .flash-char{
+    font-weight:900;font-size:clamp(4.2rem,22vw,8rem);color:var(--ink);line-height:1;
+  }
+
+  .quiz-char{font-weight:900;font-size:clamp(2.6rem,11vw,4.2rem);color:var(--ink);}
+  .quiz-prompt{font-size:13px;color:var(--ink-soft);font-weight:700;}
+  .quiz-options{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+  .opt-btn{
+    width:104px;height:104px;border-radius:26px;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:3rem;
+    background:var(--cream);box-shadow:0 6px 0 rgba(0,0,0,.06), 0 8px 16px rgba(120,120,180,.15);
+    transition:transform .12s, background .15s;
+  }
+  .opt-btn:not(:disabled):hover{transform:translateY(-3px);}
+  .opt-btn:disabled{cursor:default;}
+  .opt-btn.correct{background:var(--mint);box-shadow:0 6px 0 var(--mint-deep), 0 8px 16px rgba(47,190,147,.35);animation:pop .35s;}
+  .opt-btn.wrong{background:var(--coral);box-shadow:0 6px 0 var(--coral-deep);animation:shake .3s;}
+  .opt-btn.reveal{background:var(--mint);box-shadow:0 6px 0 var(--mint-deep);}
+  @keyframes pop{0%{transform:scale(1);}45%{transform:scale(1.18);}100%{transform:scale(1);}}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+
+  .recall-options{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .recall-btn{
+    min-width:130px;padding:18px 20px;border-radius:22px;border:none;cursor:pointer;
+    background:var(--cream);font-size:2.2rem;line-height:1.3;text-align:center;
+    box-shadow:0 6px 0 rgba(0,0,0,.06), 0 8px 16px rgba(120,120,180,.15);
+    transition:transform .12s, background .15s;
+  }
+  .recall-btn span{display:block;font-size:14px;font-weight:700;color:var(--ink);margin-top:4px;}
+  .recall-btn:not(:disabled):hover{transform:translateY(-3px);}
+  .recall-btn:disabled{cursor:default;}
+  .recall-btn.correct{background:var(--mint);box-shadow:0 6px 0 var(--mint-deep);animation:pop .35s;}
+  .recall-btn.wrong{background:var(--coral);box-shadow:0 6px 0 var(--coral-deep);animation:shake .3s;}
+  .recall-btn.reveal{background:var(--mint);box-shadow:0 6px 0 var(--mint-deep);}
+
+  .progress-dots{display:flex;gap:7px;justify-content:center;margin-top:18px;}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--ink-faint);transition:.2s;}
+  .dot.filled{background:var(--sun-deep);transform:scale(1.15);}
+  .dot.current{background:var(--skyblue);}
+
+  .result-stars{font-size:3rem;letter-spacing:6px;}
+  .result-stars .dim{opacity:.25;}
+  .result-msg{font-weight:700;font-size:16px;color:var(--ink);}
+  .result-sub{font-size:13px;color:var(--ink-soft);}
+  .again-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .btn-soft{
+    font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14.5px;color:var(--ink);
+    background:var(--cream);border:none;border-radius:999px;padding:12px 26px;cursor:pointer;
+  }
+  .stop-link{
+    background:none;border:none;color:var(--ink-faint);font-size:11.5px;font-family:'Baloo 2',sans-serif;
+    cursor:pointer;margin-top:14px;text-decoration:underline;
+  }
+
+  .confetti{position:absolute;font-size:1.4rem;pointer-events:none;animation:fly 1s ease-out forwards;}
+  @keyframes fly{
+    0%{transform:translate(0,0) scale(1);opacity:1;}
+    100%{transform:var(--fly-to) scale(.6);opacity:0;}
+  }
+
+  /* ===== Parent history ===== */
+  details.parent-history{
+    background:var(--cloud);border-radius:var(--radius-lg);padding:6px 18px 18px;margin-top:16px;
+    box-shadow:0 6px 18px rgba(120,120,180,.10);
+  }
+  details.parent-history summary{
+    cursor:pointer;padding:14px 0;font-weight:700;font-size:14.5px;color:var(--ink);list-style:none;
+    display:flex;align-items:center;gap:8px;
+  }
+  details.parent-history summary::-webkit-details-marker{display:none;}
+  details.parent-history summary::before{content:"▸";color:var(--skyblue);transition:.2s;}
+  details.parent-history[open] summary::before{transform:rotate(90deg);}
+  .mastered-box{
+    background:var(--cream);border-radius:var(--radius-md);padding:12px 16px;font-size:13px;color:var(--ink);
+    font-weight:600;margin-bottom:12px;
+  }
+  .mastered-box b{color:var(--sun-deep);font-size:16px;}
+  .chart-svg{width:100%;height:110px;display:block;}
+  .chart-grid{stroke:#EDEAF6;stroke-width:1;}
+  .chart-line{fill:none;stroke-width:2.5;stroke:var(--skyblue);filter:drop-shadow(0 0 3px rgba(90,183,255,.4));}
+  .chart-dot{fill:#fff;stroke:var(--skyblue);stroke-width:2;}
+  .hist-row{
+    display:grid;grid-template-columns:24px 1fr auto auto;gap:8px;align-items:center;
+    background:var(--cream);border-radius:12px;padding:8px 12px;font-size:12px;margin-bottom:6px;
+  }
+  .hist-row .stars{color:var(--sun-deep);}
+  .empty-note{color:var(--ink-faint);font-size:12.5px;padding:6px 2px;}
+  .clear-btn{font-size:12px;padding:8px 16px;margin-top:6px;}
+  .storage-note{font-size:11px;color:var(--ink-faint);margin-top:10px;line-height:1.6;}
+
+  @media (prefers-reduced-motion: reduce){
+    .opt-btn.correct, .opt-btn.wrong{animation:none;}
+    .confetti{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="header-emoji">🦉</div>
+    <div>
+      <h1 class="zh">字詞快閃樂園</h1>
+      <p>給幼兒園大班小朋友的識字快閃練習，看一看、記一記，再玩配對遊戲！</p>
+    </div>
+  </header>
+
+  <details class="settings-panel" id="settingsPanel" open>
+    <summary>家長設定 ⚙️</summary>
+    <div class="settings-body">
+      <div class="set-row">
+        <span class="set-label">主題</span>
+        <select class="kid-select" id="categorySelect">
+          <option value="all">全部主題</option>
+          <option value="number">國字數字</option>
+          <option value="arabic">阿拉伯數字</option>
+          <option value="animal">動物</option>
+          <option value="nature">大自然</option>
+          <option value="object">生活用品</option>
+          <option value="food">食物</option>
+          <option value="family">家人</option>
+          <option value="color">顏色</option>
+          <option value="custom">✏️ 自訂題庫</option>
+        </select>
+      </div>
+      <div class="set-row">
+        <span class="set-label">難度</span>
+        <div class="pillgroup" id="levelGroup">
+          <button class="pill" data-level="char" type="button">單字</button>
+          <button class="pill" data-level="word" type="button">兩字詞</button>
+          <button class="pill active" data-level="mix" type="button">混合</button>
+        </div>
+      </div>
+      <div class="set-row">
+        <span class="set-label">測驗方式</span>
+        <div class="pillgroup" id="quizModeGroup">
+          <button class="pill active" data-quizmode="match" type="button">配圖</button>
+          <button class="pill" data-quizmode="recall" type="button">字詞回憶</button>
+        </div>
+      </div>
+      <div class="pool-hint zh" style="margin-top:0;">配圖：從三個圖案中選出正確的字義，適合還在建立字形記憶的小朋友。字詞回憶：判斷剛剛有沒有看過這個字，適合已經比較會認字的小朋友。</div>
+      <div class="set-row">
+        <span class="set-label">每輪題數</span>
+        <input type="range" id="roundSizeSlider" min="3" max="15" step="1" value="8">
+        <span class="zh" id="roundSizeLabel" style="font-size:13px;font-weight:700;">8 題</span>
+      </div>
+      <div class="set-row">
+        <span class="set-label">停留秒數</span>
+        <input type="range" id="durationSlider" min="1" max="4" step="0.5" value="2.5">
+        <span class="zh" id="durationLabel" style="font-size:13px;font-weight:700;">2.5 秒</span>
+      </div>
+      <div class="set-row">
+        <div class="switch-row">顯示圖案提示<div class="switch on" id="hintSwitch"></div></div>
+        <div class="switch-row">音效<div class="switch on" id="soundSwitch"></div></div>
+      </div>
+      <div class="pool-hint zh" id="poolHint"></div>
+
+      <div class="custom-bank zh">
+        <div class="set-label">✏️ 自訂題庫（在這裡新增自己的題目）</div>
+        <div class="custom-add-row">
+          <input type="text" id="customCharInput" placeholder="字詞，例如：小狗" maxlength="6">
+          <input type="text" id="customEmojiInput" placeholder="😊" maxlength="4">
+          <select class="kid-select" id="customCatSelect">
+            <option value="animal">動物</option>
+            <option value="nature">大自然</option>
+            <option value="object">生活用品</option>
+            <option value="food">食物</option>
+            <option value="family">家人</option>
+            <option value="color">顏色</option>
+            <option value="number">數字</option>
+          </select>
+          <button class="custom-add-btn" id="customAddBtn" type="button">＋ 加入</button>
+        </div>
+        <div class="custom-hint">輸入一個字詞，再點「圖案」欄位用手機的表情符號鍵盤選一個 emoji（例如 🐶🍎🚗）。加入後，把上面「主題」選成「✏️ 自訂題庫」就能只練習自己出的題目。</div>
+        <div class="custom-list" id="customList"></div>
+      </div>
+    </div>
+  </details>
+
+  <div class="play-card" id="playCard">
+    <div class="mascot-row">
+      <div class="mascot">🦉</div>
+      <div class="speech-bubble zh" id="speechBubble">準備好了嗎？我們來認字吧！</div>
+    </div>
+    <div class="stage" id="stage"></div>
+    <div class="progress-dots" id="progressDots"></div>
+  </div>
+
+  <details class="parent-history" id="parentHistory">
+    <summary>家長紀錄 📊</summary>
+    <div class="mastered-box zh" id="masteredBox"></div>
+    <div id="chartHolder"></div>
+    <div id="historyList" style="margin-top:12px;"></div>
+    <button class="btn-soft clear-btn" id="clearHistoryBtn" type="button">清除本機紀錄</button>
+    <div class="storage-note" id="storageNote"></div>
+  </details>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+
+  /* ---------- Storage ---------- */
+  const Store = (function(){
+    let backend = 'memory';
+    const mem = {};
+    try{
+      const k = '__kidrsvp_test__';
+      window.localStorage.setItem(k,'1');
+      window.localStorage.removeItem(k);
+      backend = 'local';
+    }catch(e){ backend = 'memory'; }
+    return {
+      backend: ()=>backend,
+      get(key, fallback){
+        try{
+          if(backend==='local'){
+            const raw = window.localStorage.getItem(key);
+            return raw===null ? fallback : JSON.parse(raw);
+          }
+          return key in mem ? mem[key] : fallback;
+        }catch(e){ return fallback; }
+      },
+      set(key, value){
+        try{
+          if(backend==='local'){ window.localStorage.setItem(key, JSON.stringify(value)); return; }
+        }catch(e){ backend='memory'; }
+        mem[key] = value;
+      }
+    };
+  })();
+  const KEY_HISTORY = 'rsvp_kid_v1_history';
+  const KEY_SETTINGS = 'rsvp_kid_v1_settings';
+  const KEY_MASTERED = 'rsvp_kid_v1_mastered';
+  const KEY_CUSTOM = 'rsvp_kid_v1_custom';
+
+  /* ---------- Content pool (concrete nouns/numbers/colors, each with a unique emoji) ---------- */
+  const ITEMS = [
+    {char:'一',emoji:'1️⃣',cat:'number'},{char:'二',emoji:'2️⃣',cat:'number'},{char:'三',emoji:'3️⃣',cat:'number'},
+    {char:'四',emoji:'4️⃣',cat:'number'},{char:'五',emoji:'5️⃣',cat:'number'},{char:'六',emoji:'6️⃣',cat:'number'},
+    {char:'七',emoji:'7️⃣',cat:'number'},{char:'八',emoji:'8️⃣',cat:'number'},{char:'九',emoji:'9️⃣',cat:'number'},
+    {char:'十',emoji:'🔟',cat:'number'},
+    {char:'0',emoji:'0️⃣',cat:'arabic'},{char:'1',emoji:'1️⃣',cat:'arabic'},{char:'2',emoji:'2️⃣',cat:'arabic'},
+    {char:'3',emoji:'3️⃣',cat:'arabic'},{char:'4',emoji:'4️⃣',cat:'arabic'},{char:'5',emoji:'5️⃣',cat:'arabic'},
+    {char:'6',emoji:'6️⃣',cat:'arabic'},{char:'7',emoji:'7️⃣',cat:'arabic'},{char:'8',emoji:'8️⃣',cat:'arabic'},
+    {char:'9',emoji:'9️⃣',cat:'arabic'},{char:'10',emoji:'🔟',cat:'arabic'},
+    {char:'貓',emoji:'🐱',cat:'animal'},{char:'狗',emoji:'🐶',cat:'animal'},{char:'魚',emoji:'🐟',cat:'animal'},{char:'鳥',emoji:'🐦',cat:'animal'},
+    {char:'兔子',emoji:'🐰',cat:'animal'},{char:'大象',emoji:'🐘',cat:'animal'},{char:'老虎',emoji:'🐯',cat:'animal'},{char:'猴子',emoji:'🐵',cat:'animal'},
+    {char:'花',emoji:'🌸',cat:'nature'},{char:'雨',emoji:'☔',cat:'nature'},{char:'山',emoji:'⛰️',cat:'nature'},{char:'水',emoji:'💧',cat:'nature'},
+    {char:'火',emoji:'🔥',cat:'nature'},{char:'月',emoji:'🌙',cat:'nature'},{char:'星',emoji:'⭐',cat:'nature'},{char:'太陽',emoji:'☀️',cat:'nature'},
+    {char:'車',emoji:'🚗',cat:'object'},{char:'球',emoji:'⚽',cat:'object'},{char:'書',emoji:'📖',cat:'object'},
+    {char:'蘋果',emoji:'🍎',cat:'food'},{char:'香蕉',emoji:'🍌',cat:'food'},{char:'西瓜',emoji:'🍉',cat:'food'},
+    {char:'蛋糕',emoji:'🎂',cat:'food'},{char:'麵包',emoji:'🍞',cat:'food'},{char:'牛奶',emoji:'🥛',cat:'food'},
+    {char:'爸爸',emoji:'👨',cat:'family'},{char:'媽媽',emoji:'👩',cat:'family'},{char:'哥哥',emoji:'🧒',cat:'family'},
+    {char:'姐姐',emoji:'👧',cat:'family'},{char:'弟弟',emoji:'👦',cat:'family'},{char:'妹妹',emoji:'👶',cat:'family'},
+    {char:'紅色',emoji:'🔴',cat:'color'},{char:'黃色',emoji:'🟡',cat:'color'},{char:'藍色',emoji:'🔵',cat:'color'},
+    {char:'綠色',emoji:'🟢',cat:'color'},{char:'白色',emoji:'⚪',cat:'color'},{char:'黑色',emoji:'⚫',cat:'color'}
+  ];
+
+  const ENCOURAGE_START = ['準備好了嗎？我們來認字吧！','來看看今天有哪些字～','眼睛看仔細，我們開始囉！'];
+  const ENCOURAGE_FLASH = ['仔細看喔！','記住它的樣子～','再一個，加油！'];
+  const ENCOURAGE_QUIZ  = ['剛剛看過這個字，是哪一個呢？','找找看，哪個圖對得上？','你記得嗎？選選看！'];
+  const ENCOURAGE_GOOD  = ['你好棒！記得好清楚！','太厲害了！','你是認字小高手！'];
+  const ENCOURAGE_OK    = ['很不錯喔，越玩會越熟悉！','再玩一次會更棒！','你已經進步囉！'];
+  const ENCOURAGE_TRY   = ['沒關係，我們再玩一次！','慢慢來，你會越來越熟悉～','一起再試一次吧！'];
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  /* ---------- Settings state ---------- */
+  const savedSettings = Store.get(KEY_SETTINGS, {});
+  const settings = {
+    category: savedSettings.category || 'all',
+    level: savedSettings.level || 'mix',
+    quizMode: savedSettings.quizMode || 'match',
+    roundSize: Math.min(15, Math.max(3, savedSettings.roundSize || 8)),
+    duration: savedSettings.duration || 2.5,
+    hint: savedSettings.hint !== undefined ? savedSettings.hint : true,
+    sound: savedSettings.sound !== undefined ? savedSettings.sound : true
+  };
+  function saveSettings(){ Store.set(KEY_SETTINGS, settings); }
+
+  let history = Store.get(KEY_HISTORY, []);
+  let mastered = new Set(Store.get(KEY_MASTERED, []));
+
+  /* ---------- Custom (parent-authored) items ---------- */
+  let customItems = (Store.get(KEY_CUSTOM, []) || []).filter(i => i && i.char && i.emoji)
+    .map(i => ({char:String(i.char), emoji:String(i.emoji), cat:i.cat || 'custom', custom:true}));
+  function saveCustom(){ Store.set(KEY_CUSTOM, customItems.map(i=>({char:i.char, emoji:i.emoji, cat:i.cat}))); }
+  // Built-in items + parent-authored items, used everywhere a full pool is needed.
+  function allItems(){ return ITEMS.concat(customItems); }
+
+  /* ---------- Round state ---------- */
+  const round = {
+    phase:'idle', // idle | flash | quiz | result
+    items:[], quizItems:[], flashIndex:0, quizIndex:0, correctCount:0, timerId:null, answering:false
+  };
+
+  /* ---------- DOM refs ---------- */
+  const categorySelect = $('categorySelect');
+  const levelGroup = $('levelGroup');
+  const quizModeGroup = $('quizModeGroup');
+  const roundSizeSlider = $('roundSizeSlider');
+  const roundSizeLabel = $('roundSizeLabel');
+  const durationSlider = $('durationSlider');
+  const durationLabel = $('durationLabel');
+  const hintSwitch = $('hintSwitch');
+  const soundSwitch = $('soundSwitch');
+  const poolHint = $('poolHint');
+  const customCharInput = $('customCharInput');
+  const customEmojiInput = $('customEmojiInput');
+  const customCatSelect = $('customCatSelect');
+  const customAddBtn = $('customAddBtn');
+  const customList = $('customList');
+  const speechBubble = $('speechBubble');
+  const stage = $('stage');
+  const progressDots = $('progressDots');
+  const playCard = $('playCard');
+  const masteredBox = $('masteredBox');
+  const chartHolder = $('chartHolder');
+  const historyList = $('historyList');
+  const clearHistoryBtn = $('clearHistoryBtn');
+  const storageNote = $('storageNote');
+
+  /* ---------- Audio (gentle chimes, never harsh) ---------- */
+  let actx = null;
+  function ensureAudio(){ if(!actx){ actx = new (window.AudioContext||window.webkitAudioContext)(); } if(actx.state==='suspended') actx.resume(); }
+  function tone(freq, start, dur, gainPeak){
+    const osc = actx.createOscillator();
+    const gain = actx.createGain();
+    osc.type='sine'; osc.frequency.value=freq;
+    gain.gain.setValueAtTime(0.0001, actx.currentTime+start);
+    gain.gain.exponentialRampToValueAtTime(gainPeak, actx.currentTime+start+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime+start+dur);
+    osc.connect(gain).connect(actx.destination);
+    osc.start(actx.currentTime+start); osc.stop(actx.currentTime+start+dur+0.02);
+  }
+  function playCorrect(){ if(!settings.sound) return; ensureAudio(); tone(523,0,.14,.2); tone(659,.1,.14,.2); tone(784,.2,.22,.22); }
+  function playGentle(){ if(!settings.sound) return; ensureAudio(); tone(392,0,.22,.12); tone(330,.12,.28,.1); }
+  function playCheer(){ if(!settings.sound) return; ensureAudio(); [523,659,784,988].forEach((f,i)=>tone(f,i*0.09,.2,.2)); }
+
+  /* ---------- Confetti ---------- */
+  function burstConfetti(x, y){
+    const icons = ['⭐','✨','🎉','🌟'];
+    for(let i=0;i<8;i++){
+      const el = document.createElement('div');
+      el.className = 'confetti';
+      el.textContent = pick(icons);
+      const angle = (Math.PI*2*i/8) + Math.random()*0.6;
+      const dist = 60+Math.random()*40;
+      el.style.left = x+'px'; el.style.top = y+'px';
+      el.style.setProperty('--fly-to', 'translate('+Math.cos(angle)*dist+'px,'+(Math.sin(angle)*dist-30)+'px)');
+      playCard.appendChild(el);
+      setTimeout(()=>el.remove(), 1050);
+    }
+  }
+
+  /* ---------- Pool ---------- */
+  function getPool(){
+    let pool = allItems().filter(i =>
+      settings.category==='all' ? true :
+      settings.category==='custom' ? i.custom :
+      i.cat===settings.category);
+    if(settings.level!=='mix'){
+      const narrowed = pool.filter(i => settings.level==='char' ? i.char.length===1 : i.char.length===2);
+      if(narrowed.length>0) pool = narrowed;
+    }
+    return pool;
+  }
+  function renderPoolHint(){
+    const n = getPool().length;
+    poolHint.textContent = '目前條件下有 '+n+' 個字詞可以練習（每輪最多用到 '+Math.min(settings.roundSize,n)+' 個）。';
+  }
+
+  /* ---------- Settings UI wiring ---------- */
+  categorySelect.value = settings.category;
+  categorySelect.addEventListener('change', ()=>{ settings.category = categorySelect.value; saveSettings(); renderPoolHint(); });
+
+  [...levelGroup.children].forEach(b=>b.classList.toggle('active', b.dataset.level===settings.level));
+  levelGroup.addEventListener('click', e=>{
+    const btn = e.target.closest('.pill'); if(!btn) return;
+    settings.level = btn.dataset.level;
+    [...levelGroup.children].forEach(b=>b.classList.toggle('active', b===btn));
+    saveSettings(); renderPoolHint();
+  });
+
+  [...quizModeGroup.children].forEach(b=>b.classList.toggle('active', b.dataset.quizmode===settings.quizMode));
+  quizModeGroup.addEventListener('click', e=>{
+    const btn = e.target.closest('.pill'); if(!btn) return;
+    settings.quizMode = btn.dataset.quizmode;
+    [...quizModeGroup.children].forEach(b=>b.classList.toggle('active', b===btn));
+    saveSettings();
+  });
+
+  roundSizeSlider.value = settings.roundSize;
+  roundSizeLabel.textContent = settings.roundSize + ' 題';
+  roundSizeSlider.addEventListener('input', ()=>{
+    settings.roundSize = parseInt(roundSizeSlider.value, 10);
+    roundSizeLabel.textContent = settings.roundSize + ' 題';
+    saveSettings(); renderPoolHint();
+  });
+
+  durationSlider.value = settings.duration;
+  durationLabel.textContent = settings.duration.toFixed(1) + ' 秒';
+  durationSlider.addEventListener('input', ()=>{
+    settings.duration = parseFloat(durationSlider.value);
+    durationLabel.textContent = settings.duration.toFixed(1) + ' 秒';
+    saveSettings();
+  });
+
+  hintSwitch.classList.toggle('on', settings.hint);
+  hintSwitch.addEventListener('click', ()=>{ settings.hint = !settings.hint; hintSwitch.classList.toggle('on', settings.hint); saveSettings(); });
+  soundSwitch.classList.toggle('on', settings.sound);
+  soundSwitch.addEventListener('click', ()=>{ settings.sound = !settings.sound; soundSwitch.classList.toggle('on', settings.sound); saveSettings(); });
+
+  /* ---------- Custom word bank wiring ---------- */
+  function renderCustomList(){
+    if(customItems.length===0){
+      customList.innerHTML = '<div class="custom-empty">還沒有自訂題目，上面輸入字詞和圖案就能加入。</div>';
+      return;
+    }
+    customList.innerHTML = customItems.map((it,idx)=>
+      '<span class="custom-chip"><span class="chip-emoji">'+it.emoji+'</span>'+
+      '<span>'+escapeHtml(it.char)+'</span>'+
+      '<button class="chip-del" type="button" data-idx="'+idx+'" aria-label="刪除">×</button></span>'
+    ).join('');
+    [...customList.querySelectorAll('.chip-del')].forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        customItems.splice(parseInt(btn.dataset.idx,10), 1);
+        saveCustom(); renderCustomList(); renderPoolHint();
+      });
+    });
+  }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function addCustomItem(){
+    const char = (customCharInput.value||'').trim();
+    const emoji = (customEmojiInput.value||'').trim();
+    if(!char){ customCharInput.focus(); speechBubble.textContent='請先輸入字詞喔～'; return; }
+    if(!emoji){ customEmojiInput.focus(); speechBubble.textContent='請幫這個字詞選一個圖案（emoji）～'; return; }
+    if(customItems.some(i=>i.char===char)){ speechBubble.textContent='「'+char+'」已經在題庫裡囉！'; return; }
+    customItems.push({char, emoji, cat:customCatSelect.value, custom:true});
+    saveCustom();
+    customCharInput.value=''; customEmojiInput.value='';
+    customCharInput.focus();
+    renderCustomList(); renderPoolHint();
+    speechBubble.textContent='已加入「'+char+'」'+emoji+'！';
+  }
+  customAddBtn.addEventListener('click', addCustomItem);
+  customEmojiInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addCustomItem(); } });
+  customCharInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); customEmojiInput.focus(); } });
+
+  /* ---------- Progress dots ---------- */
+  function renderDots(total, currentIndex, filledUpTo){
+    progressDots.innerHTML = Array.from({length: total}, (_,i)=>{
+      let cls = 'dot';
+      if(i < filledUpTo) cls += ' filled';
+      else if(i === currentIndex) cls += ' current';
+      return '<div class="'+cls+'"></div>';
+    }).join('');
+  }
+
+  /* ---------- Stage renderers ---------- */
+  function renderIdle(){
+    round.phase = 'idle';
+    speechBubble.textContent = pick(ENCOURAGE_START);
+    stage.innerHTML = '<button class="start-btn" id="startBtn" type="button">開始 ▶</button>';
+    progressDots.innerHTML = '';
+    $('startBtn').addEventListener('click', startRound);
+  }
+
+  function startRound(){
+    ensureAudio();
+    const pool = getPool();
+    const n = Math.min(settings.roundSize, pool.length);
+    if(n < 1){ speechBubble.textContent = '這個主題還沒有字喔，換一個試試看！'; return; }
+    round.items = shuffle(pool).slice(0, n);
+    round.flashIndex = 0;
+    round.quizIndex = 0;
+    round.correctCount = 0;
+    round.phase = 'flash';
+    flashNext();
+  }
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+    return a;
+  }
+
+  function flashNext(){
+    if(round.flashIndex >= round.items.length){
+      round.phase = 'quiz';
+      if(settings.quizMode === 'recall'){
+        round.quizItems = buildRecallQuiz(round.items);
+        speechBubble.textContent = '換你囉！剛剛看過這些字嗎？';
+        stage.innerHTML = '<div class="quiz-prompt zh">準備開始字詞回憶測驗</div>';
+      } else {
+        speechBubble.textContent = '換你囉！找找看剛剛的字～';
+        stage.innerHTML = '<div class="quiz-prompt zh">準備開始配對遊戲</div>';
+      }
+      round.timerId = setTimeout(showQuizItem, 1100);
+      return;
+    }
+    const item = round.items[round.flashIndex];
+    speechBubble.textContent = pick(ENCOURAGE_FLASH);
+    stage.innerHTML =
+      '<div class="flash-char zh">'+item.char+'</div>' +
+      (settings.hint ? '<div class="flash-emoji-hint">'+item.emoji+'</div>' : '');
+    renderDots(round.items.length, round.flashIndex, round.flashIndex);
+    round.timerId = setTimeout(()=>{ round.flashIndex++; flashNext(); }, settings.duration*1000);
+  }
+
+  function buildRecallQuiz(items){
+    const total = items.length;
+    const trueCount = Math.ceil(total/2);
+    const falseCount = total - trueCount;
+    const outsidePool = allItems().filter(i => !items.some(r=>r.char===i.char));
+    const trueItems = shuffle(items).slice(0, trueCount).map(i=>({char:i.char, emoji:i.emoji, cat:i.cat, ans:true}));
+    const falseItems = shuffle(outsidePool).slice(0, Math.min(falseCount, outsidePool.length)).map(i=>({char:i.char, emoji:i.emoji, cat:i.cat, ans:false}));
+    let combined = [...trueItems, ...falseItems];
+    while(combined.length < total && items.length > 0){
+      const extra = shuffle(items)[0];
+      combined.push({char:extra.char, emoji:extra.emoji, cat:extra.cat, ans:true});
+    }
+    return shuffle(combined).slice(0, total);
+  }
+
+  function buildOptions(item){
+    const seenEmoji = new Set([item.emoji]);
+    const pool = shuffle(allItems().filter(i=>i.char!==item.char));
+    const distractors = [];
+    for(const cand of pool){
+      if(distractors.length>=2) break;
+      if(seenEmoji.has(cand.emoji)) continue;
+      distractors.push(cand);
+      seenEmoji.add(cand.emoji);
+    }
+    return shuffle([item, ...distractors]);
+  }
+
+  function showQuizItem(){
+    if(settings.quizMode === 'recall') return showRecallItem();
+    return showMatchItem();
+  }
+
+  function showMatchItem(){
+    if(round.quizIndex >= round.items.length){ return finishRound(); }
+    const item = round.items[round.quizIndex];
+    const options = buildOptions(item);
+    speechBubble.textContent = pick(ENCOURAGE_QUIZ);
+    round.answering = true;
+    stage.innerHTML =
+      '<div class="quiz-char zh">'+item.char+'</div>' +
+      '<div class="quiz-prompt zh">哪一個圖跟這個字是同一個意思？</div>' +
+      '<div class="quiz-options">' +
+        options.map((o,i)=>'<button class="opt-btn" data-idx="'+i+'" type="button" aria-label="選項">'+o.emoji+'</button>').join('') +
+      '</div>';
+    renderDots(round.items.length, round.quizIndex, round.quizIndex);
+    [...stage.querySelectorAll('.opt-btn')].forEach((btn,i)=>{
+      btn.addEventListener('click', ()=>onOptionClick(item, options, i));
+    });
+  }
+
+  function showRecallItem(){
+    if(round.quizIndex >= round.quizItems.length){ return finishRound(); }
+    const item = round.quizItems[round.quizIndex];
+    speechBubble.textContent = pick(ENCOURAGE_QUIZ);
+    round.answering = true;
+    stage.innerHTML =
+      '<div class="quiz-char zh">'+item.char+'</div>' +
+      '<div class="quiz-prompt zh">剛剛有看到這個字嗎？</div>' +
+      '<div class="recall-options">' +
+        '<button class="recall-btn" data-ans="yes" type="button">👍<span class="zh">有看過</span></button>' +
+        '<button class="recall-btn" data-ans="no" type="button">🙅<span class="zh">沒看過</span></button>' +
+      '</div>';
+    renderDots(round.quizItems.length, round.quizIndex, round.quizIndex);
+    [...stage.querySelectorAll('.recall-btn')].forEach(btn=>{
+      btn.addEventListener('click', ()=>onRecallClick(item, btn.dataset.ans==='yes'));
+    });
+  }
+
+  function onRecallClick(item, chosenYes){
+    if(!round.answering) return;
+    round.answering = false;
+    const yesBtn = stage.querySelector('.recall-btn[data-ans="yes"]');
+    const noBtn = stage.querySelector('.recall-btn[data-ans="no"]');
+    [yesBtn, noBtn].forEach(b=>b.disabled = true);
+    const isCorrect = chosenYes === item.ans;
+    const chosenBtn = chosenYes ? yesBtn : noBtn;
+    const correctBtn = item.ans ? yesBtn : noBtn;
+    if(isCorrect){
+      chosenBtn.classList.add('correct');
+      playCorrect();
+      const rect = chosenBtn.getBoundingClientRect();
+      const cardRect = playCard.getBoundingClientRect();
+      burstConfetti(rect.left-cardRect.left+rect.width/2, rect.top-cardRect.top+rect.height/2);
+      round.correctCount++;
+      if(item.ans){ mastered.add(item.char); Store.set(KEY_MASTERED, [...mastered]); }
+      speechBubble.textContent = pick(ENCOURAGE_GOOD);
+    } else {
+      chosenBtn.classList.add('wrong');
+      correctBtn.classList.add('reveal');
+      playGentle();
+      speechBubble.textContent = item.ans ? '沒關係，這個字剛剛有出現過喔～' : '沒關係，這個字剛剛沒有出現過喔～';
+    }
+    round.timerId = setTimeout(()=>{ round.quizIndex++; showQuizItem(); }, 1500);
+  }
+
+  function onOptionClick(item, options, idx){
+    if(!round.answering) return;
+    round.answering = false;
+    const btns = [...stage.querySelectorAll('.opt-btn')];
+    btns.forEach(b=>b.disabled = true);
+    const chosen = options[idx];
+    const isCorrect = chosen.char === item.char;
+    if(isCorrect){
+      btns[idx].classList.add('correct');
+      playCorrect();
+      const rect = btns[idx].getBoundingClientRect();
+      const cardRect = playCard.getBoundingClientRect();
+      burstConfetti(rect.left-cardRect.left+rect.width/2, rect.top-cardRect.top+rect.height/2);
+      round.correctCount++;
+      mastered.add(item.char);
+      Store.set(KEY_MASTERED, [...mastered]);
+      speechBubble.textContent = pick(ENCOURAGE_GOOD);
+    } else {
+      btns[idx].classList.add('wrong');
+      const correctIdx = options.findIndex(o=>o.char===item.char);
+      if(correctIdx>=0) btns[correctIdx].classList.add('reveal');
+      playGentle();
+      speechBubble.textContent = '沒關係，答案是這個圖，我們再看一次～';
+    }
+    round.timerId = setTimeout(()=>{ round.quizIndex++; showQuizItem(); }, 1500);
+  }
+
+  function finishRound(){
+    round.phase = 'result';
+    const total = round.items.length;
+    const accuracy = total ? round.correctCount/total : 0;
+    const stars = accuracy>=0.999 ? 3 : (accuracy>=0.6 ? 2 : 1);
+    const record = { date: new Date().toISOString(), total, correct: round.correctCount, accuracy, stars };
+    history.push(record);
+    Store.set(KEY_HISTORY, history);
+
+    const msg = stars===3 ? pick(ENCOURAGE_GOOD) : (stars===2 ? pick(ENCOURAGE_OK) : pick(ENCOURAGE_TRY));
+    speechBubble.textContent = msg;
+    if(stars>=2) playCheer();
+
+    const starHtml = Array.from({length:3},(_,i)=> i<stars ? '⭐' : '<span class="dim">⭐</span>').join('');
+    stage.innerHTML =
+      '<div class="result-stars">'+starHtml+'</div>' +
+      '<div class="result-msg zh">答對了 '+round.correctCount+' / '+total+' 題！</div>' +
+      '<div class="result-sub zh">目前總共認識 '+mastered.size+' 個字詞囉！</div>' +
+      '<div class="again-row">' +
+        '<button class="start-btn" id="againBtn" type="button" style="font-size:16px;padding:14px 30px;">再玩一次 ▶</button>' +
+      '</div>';
+    progressDots.innerHTML = '';
+    $('againBtn').addEventListener('click', startRound);
+    renderMastered();
+    renderChart();
+    renderHistoryList();
+  }
+
+  /* ---------- Stop / reset link ---------- */
+  function addStopLink(){
+    if(stage.querySelector('.stop-link')) return;
+    const link = document.createElement('button');
+    link.className = 'stop-link';
+    link.type = 'button';
+    link.textContent = '重新開始';
+    link.addEventListener('click', ()=>{
+      clearTimeout(round.timerId);
+      renderIdle();
+    });
+    stage.appendChild(link);
+  }
+
+  /* ---------- Parent history panel ---------- */
+  function renderMastered(){
+    masteredBox.innerHTML = '已經練習過 <b>'+history.length+'</b> 輪，累積認識 <b>'+mastered.size+'</b> 個不同的字詞！';
+  }
+  function renderChart(){
+    if(history.length===0){ chartHolder.innerHTML = '<div class="empty-note">完成幾輪練習後，這裡會顯示正確率的走勢。</div>'; return; }
+    const values = history.map(r=>Math.round(r.accuracy*100));
+    const w=380,h=100,padX=20,padY=14;
+    const min=0,max=100,range=100;
+    const stepX = values.length>1 ? (w-2*padX)/(values.length-1) : 0;
+    const pts = values.map((v,i)=>{
+      const x = values.length>1 ? padX+i*stepX : w/2;
+      const y = h-padY-((v-min)/range)*(h-2*padY);
+      return [x,y];
+    });
+    const path = pts.map((p,i)=>(i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+    const gridLines = [0,0.5,1].map(f=>{ const y=padY+f*(h-2*padY); return '<line x1="'+padX+'" y1="'+y+'" x2="'+(w-padX)+'" y2="'+y+'" class="chart-grid"/>'; }).join('');
+    const dots = pts.map(p=>'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3.5" class="chart-dot"/>').join('');
+    chartHolder.innerHTML = '<svg viewBox="0 0 '+w+' '+h+'" class="chart-svg">'+gridLines+'<path d="'+path+'" class="chart-line"/>'+dots+'</svg>';
+  }
+  function renderHistoryList(){
+    if(history.length===0){ historyList.innerHTML = '<div class="empty-note">尚無紀錄。</div>'; return; }
+    const rows = history.slice().reverse().slice(0,10).map((r,idx)=>{
+      const d = new Date(r.date);
+      const dateStr = (d.getMonth()+1)+'/'+d.getDate();
+      const starStr = '⭐'.repeat(r.stars);
+      return '<div class="hist-row"><div>'+dateStr+'</div><div class="zh">答對 '+r.correct+' / '+r.total+'</div><div class="stars">'+starStr+'</div><div></div></div>';
+    }).join('');
+    historyList.innerHTML = rows;
+  }
+  clearHistoryBtn.addEventListener('click', ()=>{
+    if(history.length===0){ return; }
+    const ok = window.confirm('確定要清除所有本機紀錄嗎？此動作無法復原。');
+    if(!ok) return;
+    history = [];
+    mastered = new Set();
+    Store.set(KEY_HISTORY, []);
+    Store.set(KEY_MASTERED, []);
+    renderMastered(); renderChart(); renderHistoryList();
+  });
+
+  /* ---------- Init ---------- */
+  renderCustomList();
+  renderPoolHint();
+  renderIdle();
+  renderMastered();
+  renderChart();
+  renderHistoryList();
+  storageNote.textContent = Store.backend()==='local'
+    ? '練習紀錄已儲存在這個瀏覽器裡，重新整理或改天回來都會保留。'
+    : '目前環境無法使用本機儲存，紀錄僅保留在本次分頁——下載後用瀏覽器開啟即可正常保存。';
+})();
+</script>
+</body>
+</html>
